@@ -4,6 +4,8 @@
 
 package com.tinder.scarlet.socketio.client
 
+import com.github.nkzawa.socketio.client.IO
+import com.github.nkzawa.socketio.client.Socket
 import com.tinder.scarlet.Channel
 import com.tinder.scarlet.Message
 import com.tinder.scarlet.MessageQueue
@@ -12,8 +14,6 @@ import com.tinder.scarlet.ProtocolSpecificEventAdapter
 import com.tinder.scarlet.socketio.SocketIoEvent
 import com.tinder.scarlet.utils.SimpleChannelFactory
 import com.tinder.scarlet.utils.SimpleProtocolOpenRequestFactory
-import io.socket.client.IO
-import io.socket.client.Socket
 import org.json.JSONObject
 
 class SocketIoClient(
@@ -87,12 +87,12 @@ internal class SocketIoMainChannel(
     }
 
     override fun close(closeRequest: Protocol.CloseRequest) {
-        socket?.disconnect()
+        socket?.close()
         socket = null
     }
 
     override fun forceClose() {
-        socket?.disconnect()
+        socket?.close()
         socket = null
     }
 
@@ -163,7 +163,7 @@ internal class SocketIoMessageChannel(
     override fun send(message: Message, messageMetaData: Protocol.MessageMetaData): Boolean {
         val socket = socket ?: return false
         when (message) {
-            is Message.Text -> socket.emit(eventName, message.value)
+            is Message.Text -> socket.emit(eventName, JSONObject(message.value))
             is Message.Bytes -> socket.emit(eventName, message.value)
         }
         return true
